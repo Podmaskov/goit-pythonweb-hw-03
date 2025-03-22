@@ -45,17 +45,16 @@ class HttpHandler(BaseHTTPRequestHandler):
             self.send_html_file('message.html')
         elif pr_url.path == '/read':
             self.render_template('outputs.jinja')
+        elif pr_url.path.startswith('/css') or pr_url.path.startswith('/img'):
+            self.send_static()
         else:
-            if BASE_DIR.joinpath(pr_url.path[1:]).exists():
-                self.send_static()
-            else:
-                self.send_html_file('error.html', 404)
+            self.send_html_file('error.html', 404)
 
     def send_html_file(self, filename, status=200):
         self.send_response(status)
         self.send_header('Content-type', 'text/html')
         self.end_headers()
-        with open(filename, 'rb') as fd:
+        with open(os.path.join('templates', filename), 'rb') as fd:
             self.wfile.write(fd.read())
 
     def send_static(self):
